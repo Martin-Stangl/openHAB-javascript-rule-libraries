@@ -24,9 +24,7 @@
         if (config.WARN.prefix  === undefined) config.WARN.prefix  = {"prefix": "none"};
         if (config.INFO.prefix  === undefined) config.INFO.prefix  = {"prefix": "none"};
         if (config.DEBUG.prefix === undefined) config.INFO.prefix  = {"prefix": "short"};       
-        logTrace("name = " + name);
-
-
+        
         try {
             return Object.create(Object.prototype, {
                 _notificationLevel: { value: notificationLevel === undefined ? OFF : notificationLevel },
@@ -94,10 +92,8 @@
                     }
                 }},
 
-                _getLogMessage: { value: function _getLogMessage (msg, prefix) {                    
-                    logTrace("prefix = "+prefix);
-                    if (prefix === undefined) prefix = "long";
-                    logTrace("prefix = "+prefix);
+                _getLogMessage: { value: function _getLogMessage (msg, prefix) {                                        
+                    if (prefix === undefined) prefix = "long";                    
                     if (prefix == "none") {
                         return msg.message;
                     }

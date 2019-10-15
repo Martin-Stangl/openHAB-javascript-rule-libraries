@@ -17,7 +17,7 @@ load(OPENHAB_CONF+'/automation/lib/javascript/community/logger.js');
 logger.js tries to add useful information to your log message, like the logger name as well as the file, the line and the function, in which the message was triggered. Additionally, it can send these log messages to your smartphone or tablet.
 
 ### Simplest usage
-logger.js tries to figure out some sensible default configuration, so you do not need to provide any parameters when initializing it.
+logger.js tries to figure out a sensible default configuration, so you do not need to provide any parameters when initializing it.
 By default, logger.js will log to openhab.log and not send any push notifications.
 ```
 var log = Logger();
@@ -27,7 +27,7 @@ log.info(Error("My info message"));
 log.debug(Error("My debug message"));
 log.trace(Error("My trace message"));
 ```
-The message always has to be provided as an Error object, as this gives as some additional information about where the message was triggered.
+The message always has to be provided as an Error object, as this gives us some additional information about where the message was triggered.
 
 The resulting log entries look like this:
 ```
@@ -37,7 +37,7 @@ The resulting log entries look like this:
 Tipp: As the Logger also outputs the function name, it is helpful to not use anonymous functions. So for e.g. use `function example ()` instead of `function ()`, which defines a function called example.
 
 ### Providing a name (context, scope)
-The `<eval>` in the above example is a result of the Logger trying to figure out a name for itself by determining the name of the scipt file it was initialized in. So it should be something like `gardenLightRules.js`. Unfortunately, the way how the Next-Generation Rule Engine loads the script, the file information gets lost and we get `<eval>` instead. (For scripts loaded in with load(), it works fine.)
+The `<eval>` in the above example is a result of the Logger trying to figure out a name for itself by determining the name of the scipt file it was initialized in. So it should be something like `gardenLightRules.js`. Unfortunately, due to the way how the Next-Generation Rule Engine loads the scripts, the file information gets lost and we get `<eval>` instead. (For scripts loaded in with load(), it works fine.)
 
 Therefore it is usually a good idea to provide the Logger a name, when initializing it:
 ```
@@ -52,7 +52,7 @@ The resulting log entries look like this:
 
 ### Enabling notifications
 To have logger.js also send push notifications, you first need to configure a working [openHAB Cloud Connector](https://www.openhab.org/addons/integrations/openhabcloud/).
-Then, when initializing the Logger you have to tell him, which message levels to send out as notifications:
+Then, when initializing the Logger, you have to tell it, which message levels to send out as notifications:
 ```
 var log = Logger("Garden lights", DEBUG);
 log.error(Error("My error message"));
@@ -67,13 +67,14 @@ log.trace(Error("My trace message"));
 - WARN: Error and warn messages are sent as notifications.
 - INFO: Error, warn and info messages are sent as notifications. 
 - DEBUG: Error, warn, info and debug messages are sent as notifications.
+
 Trace messages cannot be sent as notifications. 
 
 ### Configuring notification format
 The prefix for the notification message can be selected from the following choices:
-- long: `Garden lights: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 37, function example] My info message`
-- short: `Garden lights: timer.js, line 37, function example] My info message`
-- none: `My info message`
+- long: `[Garden lights: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 37, function example] My info message`
+- short: `[Garden lights: timer.js, line 37, function example] My info message`
+- none: `[My info message`
 
 Defaults are:
 - ERROR: short
@@ -95,23 +96,23 @@ var log = Logger("Garden lights", DEBUG, {
 By default, notifications are sent out as a broadcast, meaning all persons with devices registered in the cloud instance receive the notifications. But it is possible to provide specific recipients when initializing the Logger by providing their cloud instance IDs (e-mail address):
 ```
 var log = Logger("Garden lights", DEBUG, {
-        "ERROR": {"recipients": ["me@mydomain.example", "mygeek@mydomain.example"]},
-        "WARN":  {"prefix": "short"},
-        "DEBUG": {"prefix": "long", "recipients": ["mygeek@mydomain.example"]}
+        "ERROR": {"recipients": ["me@mydomain.example", "mygeek@mydomain.example"]},    // default prefix, 2 recipients
+        "WARN":  {"prefix": "short"},                                                   // prefix short, broadcast (to all recipients)
+        "DEBUG": {"prefix": "long", "recipients": ["mygeek@mydomain.example"]}          // prefix long, 1 recipient
     });
 ```
 
 ## timer.js
-Timer.js provides an easy to use countdown timer, which executes a function once zero is reached. A common usage szenario is to turn a light off if no motion was detected for 5 minutes.
-Timer.js usses logger.js, so logger.js has to be available in the same folder as timer.js.
+Timer.js provides an easy to use countdown timer, which executes a function once zero is reached. A common usage scenario is to turn a light off if no motion was detected for some time.
+Timer.js uses logger.js, so logger.js has to be available in the same folder as timer.js.
 
 ### Timer usage
 #### Timer initialization
 First, a timer needs to be initialized. 
-Parameters are identical to setTimeout(), so basically an undefined number of parameters is allowed:
-- first parameter: Function to be executed, when the timer reaches zero.
-- second parameter: Timeout in milliseconds. 
-- all other parameters: Will be passed to the function provided as the first parameter.
+Parameters are identical to setTimeout(), so basically an undefined number of parameters is allowed (minimum two):
+- First parameter: Function to be executed, when the timer reaches zero.
+- Second parameter: Timeout in milliseconds. 
+- All other parameters: Will be passed to the function provided as the first parameter.
 
 Example, without additional parameters for the function:
 ```
@@ -155,5 +156,5 @@ idleTimer.isActive();
 Returns `true`, if the timer is running (counting down), otherwhise `false`.
 
 ### Timer Logger configuration
-By default, timer.js initializes it's own Logger using logger.js.
+By default, timer.js initializes its own Logger using logger.js.
 If you want to configure the Logger for timer.js or have timer.js use the same Logger you already have initialzed, you can provide the Logger using `setTimerLogger(Logger)`. This should be done ideally immediately after timer.js was loaded and before the first Timer is initialized.

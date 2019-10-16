@@ -87,7 +87,7 @@ The prefix can be configured when initializing the Logger:
 ```
 var log = Logger("Garden lights", DEBUG, {
         "ERROR": {"prefix": "short"},
-        "WARN":  {"prefix": "leel"},
+        "WARN":  {"prefix": "level"},
         "INFO":  {"prefix": "none"},
         "DEBUG": {"prefix": "long"}
     });

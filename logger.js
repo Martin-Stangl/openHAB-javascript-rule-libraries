@@ -20,10 +20,10 @@
         if (config.WARN  === undefined) config.WARN  = {};
         if (config.INFO  === undefined) config.INFO  = {};
         if (config.DEBUG === undefined) config.DEBUG = {};
-        if (config.ERROR.prefix === undefined) config.ERROR.prefix = {"prefix": "short"};
-        if (config.WARN.prefix  === undefined) config.WARN.prefix  = {"prefix": "none"};
-        if (config.INFO.prefix  === undefined) config.INFO.prefix  = {"prefix": "none"};
-        if (config.DEBUG.prefix === undefined) config.INFO.prefix  = {"prefix": "short"};       
+        if (config.ERROR.prefix === undefined) config.ERROR.prefix = "short";
+        if (config.WARN.prefix  === undefined) config.WARN.prefix  = "none";
+        if (config.INFO.prefix  === undefined) config.INFO.prefix  = "none";
+        if (config.DEBUG.prefix === undefined) config.DEBUG.prefix = "short";       
         
         try {
             return Object.create(Object.prototype, {
@@ -35,7 +35,7 @@
                     try {
                         logError(this._getLogMessage(msg));
                         if (this._notificationLevel >= ERROR) {
-                            this._sendNotification(this._getLogMessage(msg, this._config.ERROR.prefix), "fire", "ERROR");
+                            this._sendNotification(this._getLogMessage(msg, this._config.ERROR.prefix, "ERROR"), "fire", "ERROR");
                         }
                     } catch (err) {
                         logError(this._getLogMessage(err));
@@ -46,7 +46,7 @@
                     try {
                         logWarn(this._getLogMessage(msg));
                         if (this._notificationLevel >= WARN) {
-                            this._sendNotification(this._getLogMessage(msg, this._config.WARN.prefix), "error", "WARN");                            
+                            this._sendNotification(this._getLogMessage(msg, this._config.WARN.prefix, "WARN"), "error", "WARN");                            
                         }
                     } catch (err) {
                         logError(this._getLogMessage(err));
@@ -57,7 +57,7 @@
                     try {
                         logInfo(this._getLogMessage(msg));
                         if (this._notificationLevel >= INFO) {
-                            this._sendNotification(this._getLogMessage(msg, this._config.INFO.prefix), "lightbulb", "INFO");                            
+                            this._sendNotification(this._getLogMessage(msg, this._config.INFO.prefix, "INFO"), "lightbulb", "INFO");                            
                         }
                     } catch (err) {
                         logError(this._getLogMessage(err));
@@ -68,7 +68,7 @@
                     try {
                         logDebug(this._getLogMessage(msg));
                         if (this._notificationLevel >= DEBUG) {
-                            this._sendNotification(this._getLogMessage(msg, this._config.DEBUG.prefix), "text", "DEBUG");                            
+                            this._sendNotification(this._getLogMessage(msg, this._config.DEBUG.prefix, "DEBUG"), "text", "DEBUG");                            
                         }
                     } catch (err) {
                         logError(this._getLogMessage(err));
@@ -92,10 +92,17 @@
                     }
                 }},
 
-                _getLogMessage: { value: function _getLogMessage (msg, prefix) {                                        
-                    if (prefix === undefined) prefix = "long";                    
+                _getLogMessage: { value: function _getLogMessage (msg, prefix, levelString) {                                        
+                    if (prefix === undefined) prefix = "log";                                                            
                     if (prefix == "none") {
                         return msg.message;
+                    }
+                    var level = "";
+                    if (prefix != "log") {
+                        level = "[" + levelString + "] ";
+                    }
+                    if (prefix == "level") {
+                        return (level + msg.message);
                     }
                     var caller = this._getCaller(msg.stack);
                     var callerText;
@@ -110,17 +117,20 @@
                             callerText = ", function " + caller;
                     }
                     var message = msg.message == "" ? "" : "] " + msg.message;                    
-                    return ("[" + this._name+ ": " + (prefix == "short" ? msg.fileName.split('/').pop() : msg.fileName) + ", line " + msg.lineNumber + callerText + message);
+                    return (level + "[" + this._name+ ": " + (prefix == "short" ? msg.fileName.split('/').pop() : msg.fileName) + ", line " + msg.lineNumber + callerText + message);
                 }},
                 
-                _sendNotification: { value: function _sendNotification (message, icon, levelString) {                    
-                    if (this._config !== null && this._config[levelString] !== null && this._config[levelString].recipients ==! null) {
-                        this._recipients[levelString].forEach(function(mail){
-                            logTrace("mail: " + mail);
-                            NotificationAction.sendNotification(mail, message, icon, levelString);
-                        }) 
-                    } else {
+                _sendNotification: { value: function _sendNotification (message, icon, levelString) {                                                                                
+                    if (this._config[levelString].recipients !== undefined) {
+                        this._config[levelString].recipients.forEach(function(mail){                            
+                            NotificationAction.sendNotification(mail, message, icon, levelString);                            
+                        })
+                        if (this._config[levelString].recipients.length > 0) {
+                            this.trace(Error("Notification sent to " + this._config[levelString].recipients.join(", ") + ". Message: \"" + message + "\""));
+                        }                         
+                    } else {                        
                         NotificationAction.sendBroadcastNotification(message, icon, levelString);
+                        this.trace(Error("Broadcast notification sent. Message: \"" + message + "\""));
                     }                    
                 }}
 

@@ -72,9 +72,10 @@ Trace messages cannot be sent as notifications.
 
 ### Configuring notification format
 The prefix for the notification message can be selected from the following choices:
-- long: `[Garden lights: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 37, function example] My info message`
-- short: `[Garden lights: timer.js, line 37, function example] My info message`
-- none: `[My info message`
+- long: `[INFO] [Garden lights: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 37, function example] My info message`
+- short: `[INFO] [Garden lights: timer.js, line 37, function example] My info message`
+- level: `[INFO] My info message`
+- none: `My info message`
 
 Defaults are:
 - ERROR: short
@@ -85,10 +86,10 @@ Defaults are:
 The prefix can be configured when initializing the Logger:
 ```
 var log = Logger("Garden lights", DEBUG, {
-        "ERROR": {"prefix": "long"},
-        "WARN":  {"prefix": "short"},
-        "INFO":  {"prefix": "short"},
-        "DEBUG": {"prefix": "none"}
+        "ERROR": {"prefix": "short"},
+        "WARN":  {"prefix": "leel"},
+        "INFO":  {"prefix": "none"},
+        "DEBUG": {"prefix": "long"}
     });
 ```
 
@@ -98,6 +99,7 @@ By default, notifications are sent out as a broadcast, meaning all persons with 
 var log = Logger("Garden lights", DEBUG, {
         "ERROR": {"recipients": ["me@mydomain.example", "mygeek@mydomain.example"]},    // default prefix, 2 recipients
         "WARN":  {"prefix": "short"},                                                   // prefix short, broadcast (to all recipients)
+        "INFO":  {"recipients": []]},                                                   // no recipient (no notification is sent)
         "DEBUG": {"prefix": "long", "recipients": ["mygeek@mydomain.example"]}          // prefix long, 1 recipient
     });
 ```

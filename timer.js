@@ -6,28 +6,29 @@
     var OPENHAB_CONF = Java.type("java.lang.System").getenv("OPENHAB_CONF");
     load(OPENHAB_CONF+'/automation/lib/javascript/core/utils.js');
     
-    load(__DIR__+'/logger.js');    
-    var log = Logger(__FILE__.split('/').pop());       
+    load(__DIR__+'/log.js');
+    var log = Logger();       
 
     context.setTimerLogger = function setTimerLogger (Logger) {             
         log = Logger;
-        log.trace(Error("Function called."));
+        log.trace("Function called with arguments {}", JSON.stringify(arguments));
     }
 
     context.TimerFactory = function TimerFactory (fn, millis, arg) {             
         try {
-            log.trace(Error("Function called."));                  
+            log.trace("Function called with arguments {}", JSON.stringify(arguments));                 
+
+            var _timer = undefined;
+ 
             return Object.create(Object.prototype, {
                 fn: { value: fn },                
                 millis: { value: millis },
                 arg: { value: arg },                               
 
-                _timer: { value: null, writable: true },
-                _active: { value: false, writable: true },
 
                 start: { value: function start () {
                     try { 
-                        log.trace(Error("Function called."));                  
+                        log.trace("Function called with arguments {}", JSON.stringify(arguments));                 
                         this.reset();
                     } catch (err) {
                         log.error(err);
@@ -36,15 +37,14 @@
 
                 stop: { value: function stop () {
                     try {
-                        log.trace(Error("Function called."));                
-                        if (this._timer !== null) {
-                            log.trace(Error("Active timer " + this._timer + " exists."));                  
-                            this._timer.cancel();
-                            this._timer.purge();
-                            log.debug(Error("Timer " + this._timer + " stopped."));                            
-                            this._timer = null;
+                        log.trace("Function called with arguments {}", JSON.stringify(arguments));               
+                        if (_timer !== undefined) {
+                            log.trace("Active timer {} exists.", _timer);                  
+                            _timer.cancel();
+                            _timer.purge();
+                            log.debug("Timer {} stopped.", _timer);                            
+                            _timer = undefined;
                         }
-                        this._active = false; 
                     } catch (err) {
                         log.error(err);
                     }
@@ -52,19 +52,18 @@
 
                 reset: { value: function reset () {
                     try {
-                        log.trace(Error("Function called."));                  
+                        log.trace("Function called with arguments {}", JSON.stringify(arguments));                 
                         this.stop();
-                        this._timer = setTimeout(this.fn, this.millis, this.arg);  
-                        log.debug(Error("Timer " + this._timer + " started with function = " + this.fn + ", milliseconds = " + this.millis + ", arguments = " + this.arg));                            
-                        this._active = true;  
+                        _timer = setTimeout(this.fn, this.millis, this.arg);  
+                        log.debug("Timer {} started with function = {}, milliseconds = {}, arguments = {}", _timer, this.fn, this.millis, JSON.stringify(this.arg));                            
                     } catch (err) {
                         log.error(err);
                     }
                 }},
 
                 isActive: { value: function isActive () {                    
-                    log.trace(Error("Function called."));                  
-                    return this._active;
+                    log.trace("Function called with arguments {}", JSON.stringify(arguments));                 
+                    return _timer !== undefined;
                 }}
 
             })

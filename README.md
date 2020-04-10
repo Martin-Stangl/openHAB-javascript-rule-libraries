@@ -1,6 +1,6 @@
 # openHAB-javascript-rule-libraries
 Some helpful libraries for implementing openHAB rules using jsr223 javascript.
-- [**logger.js**](#loggerjs): A logger to create high quality log entries in the [openhab.log](https://www.openhab.org/docs/administration/logging.html) and to send [notifications](https://www.openhab.org/docs/configuration/actions.html#cloud-notification-actions) to your smartphone and tablet ([Android APP](https://www.openhab.org/docs/apps/android.html)/[iOS App](https://www.openhab.org/docs/apps/ios.html)) via an [openHAB Cloud instance](https://github.com/openhab/openhab-cloud), e.g. [myopenHAB.org](https://myopenhab.org/).
+- [**log.js**](#loggerjs): A logger to create high quality log entries in the [openhab.log](https://www.openhab.org/docs/administration/logging.html) and to send [notifications](https://www.openhab.org/docs/configuration/actions.html#cloud-notification-actions) to your smartphone and tablet ([Android APP](https://www.openhab.org/docs/apps/android.html)/[iOS App](https://www.openhab.org/docs/apps/ios.html)) via an [openHAB Cloud instance](https://github.com/openhab/openhab-cloud), e.g. [myopenHAB.org](https://myopenhab.org/).
 - [**timer.js**](#timerjs): A robust timer. Works basically like setTimeout() but also takes care of the timer lifecycle.
 
 ### How to use
@@ -9,29 +9,28 @@ Some helpful libraries for implementing openHAB rules using jsr223 javascript.
 3. Include the library of your choicce in your .js rule file using the load() command. For e.g.:
 ```
 var OPENHAB_CONF = Java.type("java.lang.System").getenv("OPENHAB_CONF");
-load(OPENHAB_CONF+'/automation/lib/javascript/community/logger.js');
+load(OPENHAB_CONF+'/automation/lib/javascript/community/log.js');
 ```
 4. You find detail usage instructions for each library below.
 
-## logger.js
-logger.js tries to add useful information to your log message, like the logger name as well as the file, the line and the function, in which the message was triggered. Additionally, it can send these log messages to your smartphone or tablet.
+## log.js
+log.js tries to add useful information to your log message, like the logger name as well as the file, the line and the function, in which the message was triggered. Additionally, it can send these log messages to your smartphone or tablet.
 
 ### Simplest usage
-logger.js tries to figure out a sensible default configuration, so you do not need to provide any parameters when initializing it.
-By default, logger.js will log to openhab.log and not send any push notifications.
+log.js tries to figure out a sensible default configuration, so you do not need to provide any parameters when initializing it.
+By default, log.js will log to openhab.log and not send any push notifications.
 ```
 var log = Logger();
-log.error(Error("My error message"));
-log.warn(Error("My warn message"));
-log.info(Error("My info message"));
-log.debug(Error("My debug message"));
-log.trace(Error("My trace message"));
+log.error("My error message");
+log.warn("My warn message");
+log.info("My info message");
+log.debug("My debug message");
+log.trace("My trace message");
 ```
-The message always has to be provided as an Error object, as this gives us some additional information about where the message was triggered.
-
 The resulting log entries look like this:
 ```
-14:44:34.458 [TRACE] [jsr223.javascript                    ] - |[<eval>: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 39, function example] My trace message|
+*** TODO - ALREADY UPDATED UNTIL HERE
+2020-04-10 00:40:40.450 [DEBUG] [script.jsr223.javascript.gardenLightRules] - My debug message             [at source <eval>, line 84, function example]
 ```
 
 Tipp: As the Logger also outputs the function name, it is helpful to not use anonymous functions. So for e.g. use `function example ()` instead of `function ()`, which defines a function called example.
@@ -42,7 +41,7 @@ The `<eval>` in the above example is a result of the Logger trying to figure out
 Therefore it is usually a good idea to provide the Logger a name, when initializing it:
 ```
 var log = Logger("Garden lights");
-log.trace(Error("My trace message"));
+log.debug("My trace message");
 ```
 
 The resulting log entries look like this:
@@ -55,11 +54,11 @@ To have logger.js also send push notifications, you first need to configure a wo
 Then, when initializing the Logger, you have to tell it, which message levels to send out as notifications:
 ```
 var log = Logger("Garden lights", DEBUG);
-log.error(Error("My error message"));
-log.warn(Error("My warn message"));
-log.info(Error("My info message"));
-log.debug(Error("My debug message"));
-log.trace(Error("My trace message"));
+log.error("My error message");
+log.warn("My warn message");
+log.info("My info message");
+log.debug("My debug message");
+log.trace("My trace message");
 ```
 
 - OFF: No messages are sent as notifications.

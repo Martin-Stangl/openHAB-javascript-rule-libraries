@@ -32,7 +32,7 @@
             _name = Error().stack.split('\n')[2].split('/').slice(-2).join('.').split(':')[0];
             _name = _name.slice(-3) == ".js" ? _name.slice(0,-3) : null;
         }
-        var _logger  = Java.type("org.slf4j.LoggerFactory").getLogger(_name === null ? LOGGER_PREFIX : LOGGER_PREFIX + "." + _name.toString().toLowerCase());
+        var _logger  = Java.type("org.slf4j.LoggerFactory").getLogger(_name === null ? LOGGER_PREFIX : LOGGER_PREFIX + "." + _name.toString());
 
         try {
             // Set default config for config params not provided.

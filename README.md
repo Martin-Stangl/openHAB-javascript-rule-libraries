@@ -1,5 +1,5 @@
 # openHAB-javascript-rule-libraries
-Some helpful libraries for implementing openHAB rules using jsr223 javascript.
+Some helpful libraries for implementing rules for openHAB 2 using jsr223 javascript.
 - [**log.js**](#loggerjs): A logger to create high quality log entries in the [openhab.log](https://www.openhab.org/docs/administration/logging.html) and to send [notifications](https://www.openhab.org/docs/configuration/actions.html#cloud-notification-actions) to your smartphone and tablet ([Android APP](https://www.openhab.org/docs/apps/android.html)/[iOS App](https://www.openhab.org/docs/apps/ios.html)) via an [openHAB Cloud instance](https://github.com/openhab/openhab-cloud), e.g. [myopenHAB.org](https://myopenhab.org/).
 - [**timer.js**](#timerjs): A robust timer. Works basically like setTimeout() but also takes care of the timer lifecycle.
 
@@ -29,36 +29,30 @@ log.trace("My trace message");
 ```
 The resulting log entries look like this:
 ```
-*** TODO - ALREADY UPDATED UNTIL HERE
-2020-04-10 00:40:40.450 [DEBUG] [script.jsr223.javascript.gardenLightRules] - My debug message             [at source <eval>, line 84, function example]
+2020-04-10 00:40:40.450 [DEBUG] [script.jsr223.javascript.<eval>] - My debug message             [at source <eval>, line 84, function example]
 ```
 
 Tipp: As the Logger also outputs the function name, it is helpful to not use anonymous functions. So for e.g. use `function example ()` instead of `function ()`, which defines a function called example.
 
 ### Providing a name (context, scope)
-The `<eval>` in the above example is a result of the Logger trying to figure out a name for itself by determining the name of the scipt file it was initialized in. So it should be something like `gardenLightRules.js`. Unfortunately, due to the way how the Next-Generation Rule Engine loads the scripts, the file information gets lost and we get `<eval>` instead. (For scripts loaded in with load(), it works fine.)
+The `<eval>` in the above example is a result of the Logger trying to figure out a name for itself by determining the name of the script file it was initialized in. E.g. for a script file called gardenlights.js it should be `gardenlights`. Unfortunately, due to the way how the Next-Generation Rule Engine loads the scripts, the file information gets lost and we get `<eval>` instead. (For scripts loaded in with load(), it works fine.)
 
 Therefore it is usually a good idea to provide the Logger a name, when initializing it:
 ```
-var log = Logger("Garden lights");
-log.debug("My trace message");
+var log = Logger("gardenlights");
+log.debug("My debug message");
 ```
 
 The resulting log entries look like this:
 ```
-14:44:34.458 [TRACE] [jsr223.javascript                    ] - |[Garden lights: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 39, function example] My trace message|
+2020-04-10 00:40:40.450 [DEBUG] [script.jsr223.javascript.gardenlights] - My debug message             [at source <eval>, line 84, function example]
 ```
 
 ### Enabling notifications
 To have logger.js also send push notifications, you first need to configure a working [openHAB Cloud Connector](https://www.openhab.org/addons/integrations/openhabcloud/).
 Then, when initializing the Logger, you have to tell it, which message levels to send out as notifications:
 ```
-var log = Logger("Garden lights", DEBUG);
-log.error("My error message");
-log.warn("My warn message");
-log.info("My info message");
-log.debug("My debug message");
-log.trace("My trace message");
+var log = Logger("gardenlights", DEBUG);
 ```
 
 - OFF: No messages are sent as notifications.
@@ -70,11 +64,11 @@ log.trace("My trace message");
 Trace messages cannot be sent as notifications. 
 
 ### Configuring notification format
-The prefix for the notification message can be selected from the following choices:
-- long: `[INFO] [Garden lights: file:/C:/WORKSP~1/Projects/openHAB/openhab/conf/automation/lib/javascript/community/Martin-Stangl/timer.js, line 37, function example] My info message`
-- short: `[INFO] [Garden lights: timer.js, line 37, function example] My info message`
+The format for the notification message can be selected from the following choices:
+- long:  `[INFO] My info message        [gardenlights: at source lib/javascript/community/Martin-Stangl/timer.js, line 37, function example]`
+- short: `[INFO] My info message        [gardenlights, timer.js:37, function example]`
 - level: `[INFO] My info message`
-- none: `My info message`
+- none:  `My info message`
 
 Defaults are:
 - ERROR: short
@@ -82,20 +76,21 @@ Defaults are:
 - INFO: none
 - DEBUG: short
 
-The prefix can be configured when initializing the Logger:
+The format can be configured when initializing the Logger:
 ```
-var log = Logger("Garden lights", DEBUG, {
+var log = Logger("gardenlights", DEBUG, {
         "ERROR": {"prefix": "short"},
         "WARN":  {"prefix": "level"},
         "INFO":  {"prefix": "none"},
         "DEBUG": {"prefix": "long"}
     });
 ```
+(It is no mistake in the documentation that the format is called prefix in the configuration. The log formats used to be different in version 1 of the helper library nad the name was kept for backwards compatibility.)
 
 ### Configuring notification recipients
 By default, notifications are sent out as a broadcast, meaning all persons with devices registered in the cloud instance receive the notifications. But it is possible to provide specific recipients when initializing the Logger by providing their cloud instance IDs (e-mail address):
 ```
-var log = Logger("Garden lights", DEBUG, {
+var log = Logger("gardenlights", DEBUG, {
         "ERROR": {"recipients": ["me@mydomain.example", "mygeek@mydomain.example"]},    // default prefix, 2 recipients
         "WARN":  {"prefix": "short"},                                                   // prefix short, broadcast (to all recipients)
         "INFO":  {"recipients": []]},                                                   // no recipient (no notification is sent)

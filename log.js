@@ -48,7 +48,7 @@
 
             var _MessageFormatter = Java.type("org.slf4j.helpers.MessageFormatter");
 
-            var _getLogMessage = function _getLogMessage (msg, prefix, levelString) {
+            var _getLogMessage = function _getLogMessage (msg, prefix = "short", levelString) {
                 if (msg instanceof Error) {
                     msg.caller = msg.stack.split('\n\tat ')[1].split(' (')[0]
                 } else {
@@ -57,18 +57,11 @@
                 }
                 msg = _legacyLoggerCorrection(msg);
 
-                if (prefix === undefined) prefix = "log";
-
                 if (prefix == "none") {
                     return msg.message;
                 }
 
-                var level = "";
-                var nameText = "";
-                if (prefix != "log") {
-                    level = "[" + levelString + "] ";
-                    nameText = _name === null ? "" : _name;
-                }
+                var level = "[" + levelString + "] ";
 
                 if (prefix == "level") {
                     return (level + msg.message);
@@ -81,11 +74,13 @@
                     callerText = ", function " + msg.caller;
                 }
 
+                var nameText = _name === null ? "" : _name;
                 var message = msg.message == "" ? "" : msg.message + " ";
 
                 if (prefix == "short") {
                     return (level + message + "\t\t[" + (nameText != "" ? nameText + ", " : "") + msg.fileName.split('/').pop() + ":" + msg.lineNumber + callerText + "]");
                 }
+
                 return (level + message + "\t\t[" + (nameText != "" ? nameText + ": " : "") + "at source " + msg.fileName.split(AUTOMATION_PATH).pop() + ", line " + msg.lineNumber + callerText + "]");
             }
 
